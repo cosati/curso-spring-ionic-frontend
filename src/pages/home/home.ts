@@ -47,4 +47,9 @@ export class HomePage {
       },
       error => {});
   }
+
+  signup() {
+    // Push empilha a página (botão de voltar)
+    this.navCtrl.push('SignupPage');
+  }
 }
