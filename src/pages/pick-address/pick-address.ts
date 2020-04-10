@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { EnderecoDTO } from '../../models/endereco.dto';
+import { StorageService } from '../../services/storage.service';
+import { ClienteService } from '../../services/domain/cliente.service';
+import { ClienteDTO } from '../../models/cliente.dto';
 
 @IonicPage()
 @Component({
@@ -11,44 +14,29 @@ export class PickAddressPage {
 
   items: EnderecoDTO[];
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  constructor(
+    public navCtrl: NavController, 
+    public navParams: NavParams,
+    public storage: StorageService,
+    public clienteService: ClienteService) {
   }
 
   ionViewDidLoad() {
-    this.items = [
-      {
-        id: "1",
-        logradouro: "Rua Souza Dantas",
-        numero: "580",
-        complemento: null,
-        bairro: "Orfãs",
-        cep: "84015102",
-        cidade: {
-          id: "3",
-          nome: "Ponta Grossa",
-          estado: {
-            id: "1",
-            nome: "Paraná"
+    let localUser = this.storage.getLocalUser();
+    if (localUser && localUser.email) {
+      this.clienteService.findByEmail(localUser.email)
+        .subscribe(response => {
+          this.items = response['enderecos'];
+        },
+        error => {
+          if (error.status == 403) {
+            this.navCtrl.setRoot('HomePage');
           }
-        }
-      },
-      {
-        id: "2",
-        logradouro: "Av. União Pan-Americana",
-        numero: "1111",
-        complemento: "T3 AP04",
-        bairro: "Oficinas",
-        cep: "84045310",
-        cidade: {
-          id: "3",
-          nome: "Ponta Grossa",
-          estado: {
-            id: "1",
-            nome: "Paraná"
-          }
-        }
-      }
-    ];
+        });
+    }
+    else {
+      this.navCtrl.setRoot('HomePage');
+    }
   }
 
 }
