@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, LoadingController } from 'ionic-angular';
 import { StorageService } from '../../services/storage.service';
 import { ClienteDTO } from '../../models/cliente.dto';
 import { ClienteService } from '../../services/domain/cliente.service';
@@ -25,7 +25,8 @@ export class ProfilePage {
     public storage: StorageService,
     public clienteService: ClienteService,
     public camera: Camera,
-    public sanitizer: DomSanitizer) {
+    public sanitizer: DomSanitizer,
+    public loadingCtrl: LoadingController) {
       this.profileImage = 'assets/imgs/avatar-blank.png';
   }
 
@@ -111,18 +112,29 @@ export class ProfilePage {
   }
 
   sendPicture() {
+    let loader = this.presentLoading();
     this.clienteService.updloadPicture(this.picture)
       .subscribe(response => {
         this.picture = null;
+        loader.dismiss();
         this.getImageIfExists();
       },
       error => {
         this.cameraOn = false;
+        loader.dismiss();
       });
   }
 
   cancel() {
     this.picture = null;
+  }
+
+  presentLoading() {
+    let loader = this.loadingCtrl.create({
+      content: "Fazendo upload da foto..."
+    });
+    loader.present();
+    return loader;
   }
 
 }
